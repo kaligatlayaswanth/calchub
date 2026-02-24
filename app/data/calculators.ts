@@ -4,6 +4,7 @@ export interface Calculator {
     description: string;
     icon: string;
     category: string;
+    categoryTitle?: string;
     categorySlug: string;
     tags: string[];
     popular?: boolean;
