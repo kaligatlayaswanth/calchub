@@ -6,7 +6,7 @@ import {
     Calculator, ChevronDown, ExternalLink, Search, Star, Scale, Flame, Zap, Target,
     Percent, Scissors, PiggyBank, TrendingUp, RefreshCw, Clock, Calendar, Ruler,
     GraduationCap, Heart, Dices, Hash, Sparkles, ShieldCheck, BarChart3, Activity,
-    Droplets, TrendingUpDown
+    Droplets, TrendingUpDown, Menu, X
 } from "lucide-react";
 import { categories, allCalculators } from "../data/calculators";
 
@@ -57,6 +57,8 @@ function ExploreContent() {
             : categories[0].calculators[0]
     );
     const [search, setSearch] = useState("");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [openCats, setOpenCats] = useState<Record<string, boolean>>({
         trending: true,
         ...Object.fromEntries(categories.map((c) => [c.slug, true]))
@@ -68,6 +70,16 @@ function ExploreContent() {
             if (found) setSelected(found);
         }
     }, [calcParam]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const filtered = search
         ? allCalculators.filter(
@@ -86,7 +98,12 @@ function ExploreContent() {
 
         return (
             <button
-                onClick={() => setSelected(calc)}
+                onClick={() => {
+                    setSelected(calc);
+                    if (isMobile) {
+                        setSidebarOpen(false);
+                    }
+                }}
                 style={{
                     width: "100%",
                     background: isSelected ? "rgba(255, 255, 255, 0.06)" : "transparent",
@@ -123,10 +140,78 @@ function ExploreContent() {
         );
     };
 
+    const SidebarContent = () => (
+        <>
+            {/* Trending Section */}
+            <div style={{ marginBottom: "12px" }}>
+                <button
+                    onClick={() => toggleCat("trending")}
+                    style={{ width: "100%", background: "transparent", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}
+                >
+                    <span style={{ color: "var(--color-primary)" }}>{catIcons.trending}</span>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--color-primary)", textTransform: "uppercase", letterSpacing: "0.8px", flex: 1, textAlign: "left" }}>
+                        Trending Now
+                    </span>
+                    <ChevronDown size={14} style={{ color: "var(--text-muted)", transition: "transform 0.2s", transform: openCats.trending ? "rotate(180deg)" : "none" }} />
+                </button>
+                {openCats.trending && popularCalculators.map(calc => <SidebarItem key={`trending-${calc.slug}`} calc={calc} catColor="var(--color-primary)" />)}
+            </div>
+
+            {/* Regular Categories */}
+            {categories.map((cat) => (
+                <div key={cat.slug} style={{ marginBottom: "8px" }}>
+                    <button
+                        onClick={() => toggleCat(cat.slug)}
+                        style={{ width: "100%", background: "transparent", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}
+                    >
+                        <span style={{ color: "var(--text-muted)" }}>{catIcons[cat.slug] || <Calculator size={14} />}</span>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.6px", flex: 1, textAlign: "left" }}>
+                            {cat.title}
+                        </span>
+                        <ChevronDown size={14} style={{ color: "var(--text-muted)", transition: "transform 0.2s", transform: openCats[cat.slug] ? "rotate(180deg)" : "none" }} />
+                    </button>
+                    {openCats[cat.slug] && cat.calculators.map((calc) => <SidebarItem key={calc.slug} calc={calc} catColor="var(--color-primary)" />)}
+                </div>
+            ))}
+        </>
+    );
+
     return (
-        <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "var(--bg-primary)", position: "relative", zIndex: 1 }}>
+        <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "var(--bg-primary)", position: "relative", zIndex: 1, flexDirection: isMobile ? "column" : "row" }}>
+            {/* ── SIDEBAR OVERLAY (MOBILE) ── */}
+            {sidebarOpen && isMobile && (
+                <div 
+                    style={{ 
+                        position: "fixed", 
+                        top: 0, 
+                        left: 0, 
+                        right: 0, 
+                        bottom: 0, 
+                        background: "rgba(0,0,0,0.5)", 
+                        zIndex: 30, 
+                        backdropFilter: "blur(4px)"
+                    }}
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* ── SIDEBAR ── */}
-            <aside style={{ width: "300px", minWidth: "300px", height: "100vh", overflowY: "auto", borderRight: "1px solid var(--border)", background: "rgba(255,255,255,0.01)", display: "flex", flexDirection: "column" }}>
+            <aside style={{ 
+                width: isMobile ? "280px" : "300px", 
+                minWidth: isMobile ? undefined : "300px",
+                height: isMobile ? "auto" : "100vh", 
+                overflowY: isMobile ? "auto" : "auto",
+                borderRight: isMobile ? "none" : "1px solid var(--border)", 
+                background: "rgba(255,255,255,0.01)", 
+                display: "flex", 
+                flexDirection: "column",
+                position: isMobile ? "fixed" : "relative",
+                left: isMobile ? (sidebarOpen ? 0 : "-100%") : 0,
+                top: isMobile ? "62px" : 0,
+                zIndex: 40,
+                transition: "left 0.3s ease",
+                maxHeight: isMobile ? `calc(100vh - 62px)` : "100vh",
+            }}>
                 <div style={{ padding: "20px 16px 14px", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "var(--bg-primary)", zIndex: 10 }}>
                     <Link href="/" style={{ display: "flex", alignItems: "center", gap: "9px", textDecoration: "none", marginBottom: "16px" }}>
                         <div style={{ width: "32px", height: "32px", borderRadius: "9px", background: "var(--gradient-1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d0f1a" }}>
@@ -152,60 +237,36 @@ function ExploreContent() {
                     {filtered ? (
                         filtered.map((calc) => <SidebarItem key={calc.slug} calc={calc} catColor="var(--color-primary)" />)
                     ) : (
-                        <>
-                            {/* Trending Section */}
-                            <div style={{ marginBottom: "12px" }}>
-                                <button
-                                    onClick={() => toggleCat("trending")}
-                                    style={{ width: "100%", background: "transparent", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}
-                                >
-                                    <span style={{ color: "var(--color-primary)" }}>{catIcons.trending}</span>
-                                    <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--color-primary)", textTransform: "uppercase", letterSpacing: "0.8px", flex: 1, textAlign: "left" }}>
-                                        Trending Now
-                                    </span>
-                                    <ChevronDown size={14} style={{ color: "var(--text-muted)", transition: "transform 0.2s", transform: openCats.trending ? "rotate(180deg)" : "none" }} />
-                                </button>
-                                {openCats.trending && popularCalculators.map(calc => <SidebarItem key={`trending-${calc.slug}`} calc={calc} catColor="var(--color-primary)" />)}
-                            </div>
-
-                            {/* Regular Categories */}
-                            {categories.map((cat) => (
-                                <div key={cat.slug} style={{ marginBottom: "8px" }}>
-                                    <button
-                                        onClick={() => toggleCat(cat.slug)}
-                                        style={{ width: "100%", background: "transparent", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}
-                                    >
-                                        <span style={{ color: "var(--text-muted)" }}>{catIcons[cat.slug] || <Calculator size={14} />}</span>
-                                        <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.6px", flex: 1, textAlign: "left" }}>
-                                            {cat.title}
-                                        </span>
-                                        <ChevronDown size={14} style={{ color: "var(--text-muted)", transition: "transform 0.2s", transform: openCats[cat.slug] ? "rotate(180deg)" : "none" }} />
-                                    </button>
-                                    {openCats[cat.slug] && cat.calculators.map((calc) => <SidebarItem key={calc.slug} calc={calc} catColor="var(--color-primary)" />)}
-                                </div>
-                            ))}
-                        </>
+                        <SidebarContent />
                     )}
                 </div>
             </aside>
 
             {/* ── RIGHT PANEL ── */}
-            <main style={{ flex: 1, height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.01)", flexShrink: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-primary)" }}>
+            <main style={{ flex: 1, height: isMobile ? "auto" : "100vh", overflow: isMobile ? "auto" : "hidden", display: "flex", flexDirection: "column", minHeight: isMobile ? "calc(100vh - 62px)" : "100vh" }}>
+                <div style={{ padding: "16px 12px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.01)", flexShrink: 0, gap: "12px" }}>
+                    {isMobile && (
+                        <button 
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--color-primary)", display: "flex", padding: "6px" }}
+                        >
+                            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                        </button>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1, minWidth: 0 }}>
+                        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-primary)", flexShrink: 0 }}>
                             {iconMap[selected.slug] || <Calculator size={20} />}
                         </div>
-                        <div>
-                            <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: "18px", fontWeight: 700, color: "var(--color-secondary)", margin: 0 }}>{selected.title}</h1>
-                            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: 0, marginTop: "2px" }}>{selected.description}</p>
+                        <div style={{ minWidth: 0 }}>
+                            <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: "clamp(14px, 3vw, 18px)", fontWeight: 700, color: "var(--color-secondary)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{selected.title}</h1>
+                            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: 0, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{selected.description}</p>
                         </div>
                     </div>
-                    <Link href={`/calc/${selected.slug}`} target="_blank" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)", borderRadius: "8px", color: "var(--color-secondary)", fontSize: "12px", fontWeight: 600, padding: "8px 16px", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", transition: "all 0.2s" }}>
-                        <ExternalLink size={14} /> Open Full View
+                    <Link href={`/calc/${selected.slug}`} target="_blank" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)", borderRadius: "8px", color: "var(--color-secondary)", fontSize: "clamp(11px, 2vw, 12px)", fontWeight: 600, padding: "8px clamp(8px, 2vw, 16px)", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", transition: "all 0.2s", flexShrink: 0, whiteSpace: "nowrap" }}>
+                        <ExternalLink size={14} /> <span style={{ display: isMobile ? "none" : "inline" }}>Open</span>
                     </Link>
                 </div>
-                <iframe key={selected.slug} src={`/calc/${selected.slug}`} style={{ flex: 1, width: "100%", border: "none", background: "transparent" }} title={selected.title} />
+                <iframe key={selected.slug} src={`/calc/${selected.slug}`} style={{ flex: 1, width: "100%", border: "none", background: "transparent", minHeight: isMobile ? "400px" : "unset" }} title={selected.title} />
             </main>
         </div>
     );
