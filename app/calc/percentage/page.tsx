@@ -30,7 +30,7 @@ export default function PercentagePage() {
     const current = modes.find(m => m.id === mode)!;
 
     return (
-        <CalcLayout calcTitle="Percentage Calculator" calcDescription="Calculate percentages, percentage change, and find X% of Y with ease" calcIcon="%" categorySlug="math" categoryTitle="Math & Daily">
+        <CalcLayout calcTitle="Percentage Calculator" calcDescription="Calculate percentages, percentage change, and find X% of Y with ease" calcIcon="%" categorySlug="math" categoryTitle="Math & Daily" calcSlug="percentage">
             <div className="glass-card" style={{ padding: "28px" }}>
                 <div style={{ marginBottom: "24px" }}>
                     <label className="field-label">Calculation Type</label>

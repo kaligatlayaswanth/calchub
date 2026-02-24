@@ -30,7 +30,7 @@ export default function CompoundInterestPage() {
     };
 
     return (
-        <CalcLayout calcTitle="Compound Interest Calculator" calcDescription="Calculate compound interest with customizable compounding frequency" calcIcon="📈" categorySlug="finance" categoryTitle="Finance">
+        <CalcLayout calcTitle="Compound Interest Calculator" calcDescription="Calculate compound interest with customizable compounding frequency" calcIcon="📈" categorySlug="finance" categoryTitle="Finance" calcSlug="compound-interest">
             <div className="glass-card" style={{ padding: "28px" }}>
                 <div className="form-grid">
                     <div>

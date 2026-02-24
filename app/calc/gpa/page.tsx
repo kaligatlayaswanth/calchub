@@ -40,7 +40,7 @@ export default function GPAPage() {
     };
 
     return (
-        <CalcLayout calcTitle="GPA / CGPA Calculator" calcDescription="Calculate your weighted GPA or CGPA across multiple courses" calcIcon="🎯" categorySlug="student" categoryTitle="Student Tools">
+        <CalcLayout calcTitle="GPA / CGPA Calculator" calcDescription="Calculate your weighted GPA or CGPA across multiple courses" calcIcon="🎯" categorySlug="student" categoryTitle="Student Tools" calcSlug="gpa">
             <div className="glass-card" style={{ padding: "28px" }}>
                 <div style={{ marginBottom: "20px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 100px 40px", gap: "8px", marginBottom: "10px" }}>

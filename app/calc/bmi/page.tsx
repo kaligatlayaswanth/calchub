@@ -44,6 +44,7 @@ export default function BMIPage() {
             calcIcon="⚖️"
             categorySlug="health"
             categoryTitle="Health & Fitness"
+            calcSlug="bmi"
         >
             <div className="glass-card" style={{ padding: "28px" }}>
                 {/* Unit toggle */}

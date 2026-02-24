@@ -22,7 +22,7 @@ export default function EMIPage() {
     const fmt = (n: number) => n.toLocaleString("en-IN");
 
     return (
-        <CalcLayout calcTitle="EMI / Loan Calculator" calcDescription="Calculate your monthly EMI, total payment, and interest amount for any loan" calcIcon="🏦" categorySlug="finance" categoryTitle="Finance">
+        <CalcLayout calcTitle="EMI / Loan Calculator" calcDescription="Calculate your monthly EMI, total payment, and interest amount for any loan" calcIcon="🏦" categorySlug="finance" categoryTitle="Finance" calcSlug="emi">
             <div className="glass-card" style={{ padding: "28px" }}>
                 <div className="form-grid">
                     <div>

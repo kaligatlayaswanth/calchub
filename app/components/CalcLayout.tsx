@@ -1,26 +1,50 @@
 "use client";
 import Link from "next/link";
-import { ChevronRight, Home, ArrowUpRight } from "lucide-react";
+import { ChevronRight, Home, ArrowUpRight, ChevronDown } from "lucide-react";
 import { getCategoryBySlug, allCalculators } from "../data/calculators";
 import CalculatorCard from "./CalculatorCard";
+import { getCalculatorSEO, generateCalculatorSchema, generateFAQSchema } from "../lib/seo";
+import { useState } from "react";
 
 interface CalcLayoutProps {
     calcTitle: string;
     calcDescription: string;
-    calcIcon?: string;      // kept for compat but we use Lucide now
+    calcIcon?: string;
     categorySlug: string;
     categoryTitle: string;
+    calcSlug?: string;
     children: React.ReactNode;
 }
 
-export default function CalcLayout({ calcTitle, calcDescription, categorySlug, categoryTitle, children }: CalcLayoutProps) {
+export default function CalcLayout({ calcTitle, calcDescription, categorySlug, categoryTitle, calcSlug = "", children }: CalcLayoutProps) {
     const category = getCategoryBySlug(categorySlug);
     const related = allCalculators
         .filter(c => c.categorySlug === categorySlug && c.title !== calcTitle)
         .slice(0, 4);
+    
+    const seoData = calcSlug ? getCalculatorSEO(calcSlug) : null;
+    const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
     return (
         <div style={{ minHeight: "100vh", position: "relative", zIndex: 1 }}>
+            {/* Schema Markup */}
+            {seoData && (
+                <>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{
+                            __html: JSON.stringify(generateCalculatorSchema(seoData, "https://calc.univexo.app")),
+                        }}
+                    />
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{
+                            __html: JSON.stringify(generateFAQSchema(seoData.faqItems)),
+                        }}
+                    />
+                </>
+            )}
+
             {/* Breadcrumb */}
             <div style={{ maxWidth: "860px", margin: "0 auto", padding: "20px 24px 0" }}>
                 <nav style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px", color: "var(--text-muted)" }}>
@@ -77,6 +101,90 @@ export default function CalcLayout({ calcTitle, calcDescription, categorySlug, c
             {/* Main content */}
             <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 24px 60px" }}>
                 {children}
+
+                {/* FAQ Section */}
+                {seoData && seoData.faqItems.length > 0 && (
+                    <div style={{ marginTop: "52px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                            <div style={{ height: "2px", width: "28px", background: "var(--color-primary)", borderRadius: "999px" }} />
+                            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: "1.1rem", fontWeight: 700, color: "var(--color-secondary)", margin: 0 }}>
+                                Frequently Asked Questions
+                            </h2>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                            {seoData.faqItems.map((faq, idx) => (
+                                <div
+                                    key={idx}
+                                    style={{
+                                        background: "rgba(255,255,255,0.02)",
+                                        border: "1px solid rgba(255,255,255,0.08)",
+                                        borderRadius: "12px",
+                                        overflow: "hidden",
+                                        transition: "all 0.2s ease",
+                                    }}
+                                >
+                                    <button
+                                        onClick={() => setExpandedFAQ(expandedFAQ === idx ? null : idx)}
+                                        style={{
+                                            width: "100%",
+                                            background: "transparent",
+                                            border: "none",
+                                            padding: "16px",
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "12px",
+                                            textAlign: "left",
+                                            transition: "background 0.2s",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = "transparent";
+                                        }}
+                                    >
+                                        <ChevronDown
+                                            size={18}
+                                            style={{
+                                                color: "var(--color-primary)",
+                                                flexShrink: 0,
+                                                transition: "transform 0.3s ease",
+                                                transform: expandedFAQ === idx ? "rotate(180deg)" : "rotate(0deg)",
+                                            }}
+                                        />
+                                        <div style={{ flex: 1 }}>
+                                            <h3 style={{
+                                                fontFamily: "'Outfit',sans-serif",
+                                                fontSize: "15px",
+                                                fontWeight: 600,
+                                                color: "var(--color-secondary)",
+                                                margin: 0,
+                                            }}>
+                                                {faq.question}
+                                            </h3>
+                                        </div>
+                                    </button>
+                                    {expandedFAQ === idx && (
+                                        <div style={{
+                                            padding: "0 16px 16px 46px",
+                                            borderTop: "1px solid rgba(255,255,255,0.08)",
+                                        }}>
+                                            <p style={{
+                                                fontSize: "14px",
+                                                color: "var(--text-secondary)",
+                                                lineHeight: 1.6,
+                                                margin: 0,
+                                            }}>
+                                                {faq.answer}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Related calculators */}
                 {related.length > 0 && (

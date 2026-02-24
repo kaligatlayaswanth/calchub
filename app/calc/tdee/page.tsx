@@ -28,6 +28,7 @@ export default function TDEEPage() {
             calcIcon="⚡"
             categorySlug="health"
             categoryTitle="Health & Fitness"
+            calcSlug="tdee"
         >
             <div className="glass-card" style={{ padding: "28px" }}>
                 <div style={{ marginBottom: "24px" }}>

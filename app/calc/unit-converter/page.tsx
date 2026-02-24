@@ -79,7 +79,7 @@ export default function UnitConverterPage() {
     };
 
     return (
-        <CalcLayout calcTitle="Unit Converter" calcDescription="Convert between length, weight, temperature, volume, speed, and area units" calcIcon="🔄" categorySlug="math" categoryTitle="Math & Daily">
+        <CalcLayout calcTitle="Unit Converter" calcDescription="Convert between length, weight, temperature, volume, speed, and area units" calcIcon="🔄" categorySlug="math" categoryTitle="Math & Daily" calcSlug="unit-converter">
             <div className="glass-card" style={{ padding: "28px" }}>
                 {/* Category selector */}
                 <div style={{ marginBottom: "24px" }}>
